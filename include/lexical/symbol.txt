@@ -29,3 +29,7 @@ dollar $
 percent %
 caret ^
 ampersand &
+
+increment ++
+decrement --
+arrow ->

@@ -7,9 +7,11 @@
 !/src
 !/src/*
 !/src/*/*
+!/src/*/*/*
 !/include
 !/include/*
 !/include/*/*
+!/include/*/*/*
 !/third
 !/third/*
 !/doc
