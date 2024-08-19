@@ -1,0 +1,12 @@
+[submodule "third/finite_state_machine"]
+	path = third/finite_state_machine
+	url = https://github.com/1nchy/finite_state_machine.git
+[submodule "third/trie_tree"]
+	path = third/trie_tree
+	url = https://github.com/1nchy/trie_tree.git
+[submodule "third/signal_stack"]
+	path = third/signal_stack
+	url = https://github.com/1nchy/signal_stack.git
+[submodule "third/argument_parser"]
+	path = third/argument_parser
+	url = https://github.com/1nchy/argument_parser.git
