@@ -13,9 +13,15 @@ namespace lexical {
 
 typedef enum {
     tk_none,
-    tk_identifier, tk_keyword,
+    tk_identifier, // tk_keyword,
     tk_integer, tk_float,
     tk_string,
+
+    tk_if, // if
+    tk_while, // while
+    tk_for, // for
+    tk_const, // const
+    tk_return, // return
 
     tk_plus, // +
     tk_minus, // -
@@ -54,11 +60,12 @@ typedef enum {
     tk_arrow, // ->
 } token_t;
 
-const std::unordered_set<std::string> _keyword_set = {
-    "const"
-};
 const icy::trie_tree _keyword_tree = {
-    "const"
+    "if",
+    "while",
+    "for",
+    "const",
+    "return",
 };
 const std::unordered_set<char> _digit_set = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -85,7 +92,7 @@ const icy::trie_tree _symbol_tree = {
     "!", "@", "#", "$", "%", "^", "&",
     "++", "--", "->",
 };
-const std::unordered_map<std::string, token_t> _symbol_map = {
+const std::unordered_map<std::string, token_t> _symbol_token_map = {
     {"+", token_t::tk_plus},
     {"-", token_t::tk_minus},
     {"*", token_t::tk_asterisk},
@@ -122,10 +129,19 @@ const std::unordered_map<std::string, token_t> _symbol_map = {
     {"--", token_t::tk_decrement},
     {"->", token_t::tk_arrow},
 };
+const std::unordered_map<std::string, token_t> _keyword_token_map = {
+    {"if", token_t::tk_if},
+    {"while", token_t::tk_while},
+    {"for", token_t::tk_for},
+    {"const", token_t::tk_const},
+    {"return", token_t::tk_return},
+};
 
 inline auto string_2_token(const std::string& _s) -> token_t {
-    if (_symbol_map.contains(_s))
-        return _symbol_map.at(_s);
+    if (_symbol_token_map.contains(_s))
+        return _symbol_token_map.at(_s);
+    else if (_keyword_token_map.contains(_s))
+        return _keyword_token_map.at(_s);
     else
         return token_t::tk_none;
 }

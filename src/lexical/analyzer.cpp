@@ -43,8 +43,8 @@ auto analyzer::parse_lexeme(iter _b, iter _e) -> lexeme {
     }
     else if (_max_length == _length_identifier) {
         const std::string _word = std::string(_b, _b + _length_identifier);
-        if (_keyword_set.contains(_word)) {
-            return lexeme(token_t::tk_keyword, _word);
+        if (_keyword_token_map.contains(_word)) {
+            return lexeme(string_2_token(_word), _word);
         }
         else {
             return lexeme(token_t::tk_identifier, _word);
