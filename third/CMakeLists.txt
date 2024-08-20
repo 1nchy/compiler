@@ -25,7 +25,7 @@ macro(add_headonly_third_libraries lib_name)
     list(APPEND THIRD_INCLUDE_LIST ${PROJECT_SOURCE_DIR}/${lib_name}/include)
 endmacro(add_headonly_third_libraries)
 
-add_third_libraries(argument_parser)
+# add_third_libraries(argument_parser)
 add_third_libraries(signal_stack)
 add_third_libraries(trie_tree)
 add_headonly_third_libraries(finite_state_machine)
