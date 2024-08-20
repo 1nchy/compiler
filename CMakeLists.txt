@@ -6,20 +6,27 @@ set(CMAKE_BUILD_TYPE "Debug")
 
 set(PROJECT_SOURCE_TARGET ${PROJECT_NAME}_source_target)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 add_executable(${PROJECT_NAME} main.cpp)
 
-add_subdirectory(third)
-if (THIRD_INCLUDE_LIST)
-    include_directories(${THIRD_INCLUDE_LIST})
-endif()
-if (THIRD_LIB_DIR_LIST)
-    link_directories(${THIRD_LIB_DIR_LIST})
-endif()
-if (THIRD_LIB_LIST)
-    target_link_libraries(${PROJECT_NAME} 
-        PUBLIC ${THIRD_LIB_LIST}
-    )
-endif()
+macro(add_third_libraries lib_name)
+    message(STATUS "add third library: " ${lib_name})
+    find_package(${lib_name} REQUIRED MODULE)
+    if (${lib_name}_FOUND)
+        if (${lib_name}_INCLUDE_DIR)
+            include_directories(${${lib_name}_INCLUDE_DIR})
+        endif (${lib_name}_INCLUDE_DIR)
+        if (${lib_name}_LIBRARIES)
+            link_libraries(${${lib_name}_LIBRARIES})
+        endif (${lib_name}_LIBRARIES)
+    endif (${lib_name}_FOUND)
+endmacro(add_third_libraries)
+
+add_third_libraries(trie_tree)
+add_third_libraries(argument_parser)
+add_third_libraries(signal_stack)
+add_third_libraries(finite_state_machine)
 
 add_subdirectory(src)
 target_include_directories(${PROJECT_NAME}
