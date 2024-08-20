@@ -21,3 +21,6 @@
 
 !main.cpp
 !CMakeLists.txt
+
+!/lib
+!/lib/*
