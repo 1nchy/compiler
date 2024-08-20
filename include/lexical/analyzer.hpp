@@ -22,6 +22,7 @@ public:
     using iter = std::string::const_iterator;
 public: // interface
     void scan(iter, iter);
+    const auto& lexeme_sequence() const { return _lexeme_sequence; }
 private:
     lexeme parse_lexeme(iter, iter);
     size_t parse_integer_lexeme(iter, iter);
@@ -29,7 +30,6 @@ private:
     size_t parse_string_lexeme(iter, iter);
     size_t parse_identifier_lexeme(iter, iter);
     lexeme parse_symbol_lexeme(iter, iter);
-    const auto& lexeme_sequence() const { return _lexeme_sequence; }
     template <typename _Tp> void _M_parse_lexeme(fsm::context<_Tp>* const, iter, iter);
 private:
     std::vector<lexeme> _lexeme_sequence;

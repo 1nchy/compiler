@@ -123,7 +123,7 @@ const std::unordered_map<std::string, token_t> _symbol_map = {
     {"->", token_t::tk_arrow},
 };
 
-token_t string_2_token(const std::string& _s) {
+inline auto string_2_token(const std::string& _s) -> token_t {
     if (_symbol_map.contains(_s))
         return _symbol_map.at(_s);
     else
