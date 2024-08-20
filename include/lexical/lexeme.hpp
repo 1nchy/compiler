@@ -18,6 +18,8 @@ typedef enum {
     tk_string,
 
     tk_if, // if
+    tk_elif, // elif
+    tk_else, // else
     tk_while, // while
     tk_for, // for
     tk_const, // const
@@ -62,6 +64,8 @@ typedef enum {
 
 const icy::trie_tree _keyword_tree = {
     "if",
+    "elif",
+    "else",
     "while",
     "for",
     "const",
@@ -131,6 +135,8 @@ const std::unordered_map<std::string, token_t> _symbol_token_map = {
 };
 const std::unordered_map<std::string, token_t> _keyword_token_map = {
     {"if", token_t::tk_if},
+    {"elif", token_t::tk_elif},
+    {"else", token_t::tk_else},
     {"while", token_t::tk_while},
     {"for", token_t::tk_for},
     {"const", token_t::tk_const},
