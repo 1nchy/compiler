@@ -27,6 +27,7 @@ add_third_libraries(trie_tree)
 add_third_libraries(argument_parser)
 add_third_libraries(signal_stack)
 add_third_libraries(finite_state_machine)
+add_third_libraries(abstract_factory)
 
 add_subdirectory(src)
 target_include_directories(${PROJECT_NAME}

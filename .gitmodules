@@ -10,3 +10,6 @@
 [submodule "third/argument_parser"]
 	path = third/argument_parser
 	url = https://github.com/1nchy/argument_parser.git
+[submodule "third/abstract_factory"]
+	path = third/abstract_factory
+	url = https://github.com/1nchy/abstract_factory.git
