@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <optional>
 #include "lexical/lexeme.hpp"
+#include "syntax/abstract_syntax_tree.hpp"
 
 #include "abstract_factory.hpp"
 
@@ -24,9 +25,13 @@ static const std::string _s_empty_label = "";
 struct virtual_syntax;
 struct virtual_syntax {
     virtual ~virtual_syntax() = default;
-    virtual std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool completely_match = false);
+    virtual std::optional<ptrdiff_t> operator()(node* const _n, iter _b, iter _e, bool completely_match = false);
     virtual const std::string& label() const;
-private:
+    virtual iter begin() const;
+    virtual iter end() const;
+protected:
+    iter _lexeme_begin;
+    iter _lexeme_end;
     virtual const std::vector<rule_t>& rules() const;
 };
 
@@ -37,10 +42,12 @@ virtual_syntax* get(const std::string&);
 
 #define KEYWORD_DECL(key) \
 struct keyword_##key : public virtual_syntax { \
-    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override { \
+    std::optional<ptrdiff_t> operator()(node* const _n, iter _b, iter _e, bool _completely_match) override { \
         std::ignore = _completely_match; \
         if (_b == _e) return std::nullopt; \
         if (_b->token() == lexical::token_t::tk_##key) { \
+            this->_lexeme_begin = _b; \
+            this->_lexeme_end = _b + 1; \
             return std::make_optional<ptrdiff_t>(1); \
         } \
         return std::nullopt; \
@@ -48,10 +55,12 @@ struct keyword_##key : public virtual_syntax { \
 }
 #define SYNTAX_DECL(syn) \
 struct syntax_##syn : public virtual_syntax { \
-    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override { \
+    std::optional<ptrdiff_t> operator()(node* const _n, iter _b, iter _e, bool _completely_match) override { \
         std::ignore = _completely_match; \
         if (_b == _e) return std::nullopt; \
         if (_b->token() == lexical::token_t::tk_##syn) { \
+            this->_lexeme_begin = _b; \
+            this->_lexeme_end = _b + 1; \
             return std::make_optional<ptrdiff_t>(1); \
         } \
         return std::nullopt; \
@@ -74,7 +83,7 @@ private: \
 } \
 
 struct syntax_epsilon : public virtual_syntax {
-    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override;
+    std::optional<ptrdiff_t> operator()(node* const _n, iter _b, iter _e, bool _completely_match) override;
 };
 
 KEYWORD_DECL(if);

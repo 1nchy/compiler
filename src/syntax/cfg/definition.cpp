@@ -2,6 +2,8 @@
 
 #include "lexical/lexeme.hpp"
 
+#include <cassert>
+
 namespace icy {
 
 namespace syntax {
@@ -51,33 +53,48 @@ virtual_syntax* get(const std::string& _s) {
     return _syntax_factory->get(_s);
 }
 
-auto virtual_syntax::operator()(iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+auto virtual_syntax::operator()(node* const _n, iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+    assert(_n->syntax() == this);
+    this->_lexeme_begin = _b;
     for (const auto& _rule : this->rules()) {
         iter _i = _b;
         bool _match_failure = false;
+        _n->clear();
         for (const auto& _r : _rule) {
             auto* const _k = cfg::get(_r);
-            auto _option = _k->operator()(_i, _e);
-            delete _k;
+            _n->push(_k);
+            auto _option = _k->operator()(_n->children().back(), _i, _e);
+            // delete _k;
             if (!_option.has_value()) {
+                _n->clear();
                 _match_failure = true;
                 break;
             }
             _i += _option.value();
         }
         if (!_match_failure && (!_completely_match || _i == _e)) {
+            this->_lexeme_end = _i;
             return std::make_optional<ptrdiff_t>(_i - _b);
         }
     }
+    _n->clear();
     return std::nullopt;
 }
 auto virtual_syntax::label() const -> const std::string& {
     return _s_empty_label;
 }
+auto virtual_syntax::begin() const -> iter {
+    return this->_lexeme_begin;
+}
+auto virtual_syntax::end() const -> iter {
+    return this->_lexeme_end;
+}
 auto virtual_syntax::rules() const -> const std::vector<rule_t>& {
     return _s_empty_rules;
 }
-auto syntax_epsilon::operator()(iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+auto syntax_epsilon::operator()(node* const _n, iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+    this->_lexeme_begin = _b;
+    this->_lexeme_end = _b;
     return std::make_optional<ptrdiff_t>(0);
 }
 
