@@ -13,7 +13,7 @@ int main(int _argc, char* _argv[]) {
     const std::string _line = "1.2 + (3 * 4)";
     _la.scan(_line.cbegin(), _line.cend());
     const auto& _seq = _la.lexeme_sequence();
-    icy::syntax::cfg::_S_initialize_syntax_factory();
+    icy::syntax::cfg::initialize();
     icy::syntax::analyzer _sa;
     _sa.scan(_seq);
     return 0;

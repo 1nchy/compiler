@@ -1,6 +1,7 @@
 #ifndef _ICY_SYNTAX_CFG_DEFINITION_HPP_
 #define _ICY_SYNTAX_CFG_DEFINITION_HPP_
 
+#include <string>
 #include <vector>
 #include <type_traits>
 #include <optional>
@@ -18,17 +19,19 @@ using iter = std::vector<lexical::lexeme>::const_iterator;
 using rule_t = std::vector<std::string>;
 
 static const std::vector<rule_t> _s_empty_rules = {};
+static const std::string _s_empty_label = "";
 
 struct virtual_syntax;
 struct virtual_syntax {
-    virtual std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool completely_match = false);
     virtual ~virtual_syntax() = default;
+    virtual std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool completely_match = false);
+    virtual const std::string& label() const;
 private:
     virtual const std::vector<rule_t>& rules() const;
 };
 
 auto* const _syntax_factory = icy::factory<virtual_syntax>::instance();
-void _S_initialize_syntax_factory();
+void initialize();
 template <typename _Tp> void enroll(const std::string&);
 virtual_syntax* get(const std::string&);
 
@@ -56,10 +59,19 @@ struct syntax_##syn : public virtual_syntax { \
 }
 #define RULED_SYNTAX_DECL(syn) \
 struct syn : public virtual_syntax { \
+public: \
+    const std::string& label() const override { return _label; } \
 private: \
+    static const std::string _label; \
     static const std::vector<rule_t> _rules; \
     const std::vector<rule_t>& rules() const override { return _rules; } \
 }
+#define ANONYMOUS_RULED_SYNTAX_DECL(syn) \
+struct syn : public virtual_syntax { \
+private: \
+    static const std::vector<rule_t> _rules; \
+    const std::vector<rule_t>& rules() const override { return _rules; } \
+} \
 
 struct syntax_epsilon : public virtual_syntax {
     std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override;
@@ -114,20 +126,20 @@ SYNTAX_DECL(float);
 SYNTAX_DECL(string);
 
 RULED_SYNTAX_DECL(if_stmt);
-RULED_SYNTAX_DECL(for_stmt);
-RULED_SYNTAX_DECL(while_stmt);
-RULED_SYNTAX_DECL(assign_stmt);
+// RULED_SYNTAX_DECL(for_stmt);
+// RULED_SYNTAX_DECL(while_stmt);
+// RULED_SYNTAX_DECL(assign_stmt);
 RULED_SYNTAX_DECL(compound_stmt);
-RULED_SYNTAX_DECL(return_stmt);
+// RULED_SYNTAX_DECL(return_stmt);
 RULED_SYNTAX_DECL(expr);
 
 namespace __details__ {
 
-RULED_SYNTAX_DECL(expr_);
-RULED_SYNTAX_DECL(term);
-RULED_SYNTAX_DECL(term_);
-RULED_SYNTAX_DECL(unary);
-RULED_SYNTAX_DECL(factor);
+ANONYMOUS_RULED_SYNTAX_DECL(expr_);
+ANONYMOUS_RULED_SYNTAX_DECL(term);
+ANONYMOUS_RULED_SYNTAX_DECL(term_);
+ANONYMOUS_RULED_SYNTAX_DECL(unary);
+ANONYMOUS_RULED_SYNTAX_DECL(factor);
 
 }
 

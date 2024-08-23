@@ -8,7 +8,7 @@ namespace syntax {
 
 namespace cfg {
 
-void _S_initialize_syntax_factory() {
+void initialize() {
     enroll<syntax_epsilon>("EPSILON");
 
     enroll<if_stmt>("IF_STMT");
@@ -47,6 +47,9 @@ void _S_initialize_syntax_factory() {
     enroll<syntax_left_curly>("LEFT_CURLY");
     enroll<syntax_right_curly>("RIGHT_CURLY");
 }
+virtual_syntax* get(const std::string& _s) {
+    return _syntax_factory->get(_s);
+}
 
 auto virtual_syntax::operator()(iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
     for (const auto& _rule : this->rules()) {
@@ -67,6 +70,9 @@ auto virtual_syntax::operator()(iter _b, iter _e, bool _completely_match) -> std
         }
     }
     return std::nullopt;
+}
+auto virtual_syntax::label() const -> const std::string& {
+    return _s_empty_label;
 }
 auto virtual_syntax::rules() const -> const std::vector<rule_t>& {
     return _s_empty_rules;
@@ -91,6 +97,10 @@ const std::vector<rule_t> expr::_rules = {
     "TERM", "EXPR_"
 }
 };
+
+const std::string if_stmt::_label = "IF_STMT";
+const std::string compound_stmt::_label = "COMPOUND_STMT";
+const std::string expr::_label = "EXPR";
 
 namespace __details__ {
 
@@ -136,10 +146,6 @@ const std::vector<rule_t> factor::_rules = {
 }
 };
 
-}
-
-virtual_syntax* get(const std::string& _s) {
-    return _syntax_factory->get(_s);
 }
 
 }
