@@ -9,37 +9,70 @@ namespace syntax {
 namespace cfg {
 
 void _S_initialize_syntax_factory() {
-    _syntax_factory->enroll<if_stmt>("IF_STMT");
-    // _syntax_factory->enroll<for_stmt>("FOR_STMT");
-    // _syntax_factory->enroll<while_stmt>("WHILE_STMT");
-    // _syntax_factory->enroll<assign_stmt>("ASSIGN_MENT");
-    _syntax_factory->enroll<compound_stmt>("COMPOUND_STMT");
-    // _syntax_factory->enroll<return_stmt>("RETURN_STMT");
-    _syntax_factory->enroll<expr>("EXPR");    
+    enroll<syntax_epsilon>("EPSILON");
 
-    _syntax_factory->enroll<keyword_if>("IF");
-    _syntax_factory->enroll<keyword_elif>("ELIF");
-    _syntax_factory->enroll<keyword_else>("ELSE");
-    // _syntax_factory->enroll<keyword_while>("WHILE");
-    // _syntax_factory->enroll<keyword_for>("FOR");
-    _syntax_factory->enroll<keyword_const>("CONST");
-    _syntax_factory->enroll<keyword_return>("RETURN");
+    enroll<if_stmt>("IF_STMT");
+    // enroll<for_stmt>("FOR_STMT");
+    // enroll<while_stmt>("WHILE_STMT");
+    // enroll<assign_stmt>("ASSIGN_MENT");
+    enroll<compound_stmt>("COMPOUND_STMT");
+    // enroll<return_stmt>("RETURN_STMT");
+    enroll<expr>("EXPR");    
 
-    _syntax_factory->enroll<syntax_integer>("INTEGER");
-    _syntax_factory->enroll<syntax_float>("FLOAT");
-    _syntax_factory->enroll<syntax_string>("STRING");
-    _syntax_factory->enroll<syntax_identifier>("IDENTIFIER");
+    enroll<keyword_if>("IF");
+    enroll<keyword_elif>("ELIF");
+    enroll<keyword_else>("ELSE");
+    // enroll<keyword_while>("WHILE");
+    // enroll<keyword_for>("FOR");
+    enroll<keyword_const>("CONST");
+    enroll<keyword_return>("RETURN");
 
-    _syntax_factory->enroll<__details__::factor>("FACTOR");
+    enroll<syntax_integer>("INTEGER");
+    enroll<syntax_float>("FLOAT");
+    enroll<syntax_string>("STRING");
+    enroll<syntax_identifier>("IDENTIFIER");
 
-    _syntax_factory->enroll<syntax_plus>("PLUS");
-    _syntax_factory->enroll<syntax_minus>("MINUS");
-    _syntax_factory->enroll<syntax_asterisk>("ASTERISK");
-    _syntax_factory->enroll<syntax_slash>("SLASH");
-    _syntax_factory->enroll<syntax_left_parentheses>("LEFT_PARENTHESES");
-    _syntax_factory->enroll<syntax_right_parentheses>("RIGHT_PARENTHESES");
-    _syntax_factory->enroll<syntax_left_curly>("LEFT_CURLY");
-    _syntax_factory->enroll<syntax_right_curly>("RIGHT_CURLY");
+    enroll<__details__::expr_>("EXPR_");
+    enroll<__details__::term>("TERM");
+    enroll<__details__::term_>("TERM_");
+    enroll<__details__::unary>("UNARY");
+    enroll<__details__::factor>("FACTOR");
+
+    enroll<syntax_plus>("PLUS");
+    enroll<syntax_minus>("MINUS");
+    enroll<syntax_asterisk>("ASTERISK");
+    enroll<syntax_slash>("SLASH");
+    enroll<syntax_left_parentheses>("LEFT_PARENTHESES");
+    enroll<syntax_right_parentheses>("RIGHT_PARENTHESES");
+    enroll<syntax_left_curly>("LEFT_CURLY");
+    enroll<syntax_right_curly>("RIGHT_CURLY");
+}
+
+auto virtual_syntax::operator()(iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+    for (const auto& _rule : this->rules()) {
+        iter _i = _b;
+        bool _match_failure = false;
+        for (const auto& _r : _rule) {
+            auto* const _k = cfg::get(_r);
+            auto _option = _k->operator()(_i, _e);
+            delete _k;
+            if (!_option.has_value()) {
+                _match_failure = true;
+                break;
+            }
+            _i += _option.value();
+        }
+        if (!_match_failure && (!_completely_match || _i == _e)) {
+            return std::make_optional<ptrdiff_t>(_i - _b);
+        }
+    }
+    return std::nullopt;
+}
+auto virtual_syntax::rules() const -> const std::vector<rule_t>& {
+    return _s_empty_rules;
+}
+auto syntax_epsilon::operator()(iter _b, iter _e, bool _completely_match) -> std::optional<ptrdiff_t> {
+    return std::make_optional<ptrdiff_t>(0);
 }
 
 const std::vector<rule_t> if_stmt::_rules = {
@@ -55,31 +88,58 @@ const std::vector<rule_t> compound_stmt::_rules = {
 };
 const std::vector<rule_t> expr::_rules = {
 {
-    "FACTOR"
-}, {
-    "FACTOR", "PLUS", "EXPR"
-}, {
-    "FACTOR", "MINUS", "EXPR"
-}, {
-    "FACTOR", "ASTERISK", "EXPR"
-}, {
-    "FACTOR", "SLASH", "EXPR"
-}, {
-    "LEFT_PARENTHESES", "EXPR", "RIGHT_PARENTHESES"
+    "TERM", "EXPR_"
 }
 };
 
 namespace __details__ {
 
-const std::vector<rule_t> factor::_rules = {{
+const std::vector<rule_t> expr_::_rules = {
+{
+    "PLUS", "TERM", "EXPR_"
+}, {
+    "MINUS", "TERM", "EXPR_"
+}, {
+    "EPSILON"
+}
+};
+const std::vector<rule_t> term::_rules = {
+{
+    "UNARY", "TERM_"
+}
+};
+const std::vector<rule_t> term_::_rules = {
+{
+    "ASTERISK", "UNARY", "TERM_"
+}, {
+    "SLASH", "UNARY", "TERM_"
+}, {
+    "EPSILON"
+}
+};
+const std::vector<rule_t> unary::_rules = {
+{
+    "MINUS", "FACTOR"
+}, {
+    "FACTOR"
+}
+};
+const std::vector<rule_t> factor::_rules = {
+{
     "INTEGER"
-    }, {
+}, {
     "FLOAT"
-    }, {
+}, {
     "IDENTIFIER"
-    }
+}, {
+    "LEFT_PARENTHESES", "EXPR", "RIGHT_PARENTHESES"
+}
 };
 
+}
+
+virtual_syntax* get(const std::string& _s) {
+    return _syntax_factory->get(_s);
 }
 
 }

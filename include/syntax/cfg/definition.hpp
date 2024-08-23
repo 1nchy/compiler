@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <type_traits>
+#include <optional>
 #include "lexical/lexeme.hpp"
 
 #include "abstract_factory.hpp"
@@ -14,59 +15,55 @@ namespace syntax {
 namespace cfg {
     
 using iter = std::vector<lexical::lexeme>::const_iterator;
+using rule_t = std::vector<std::string>;
+
+static const std::vector<rule_t> _s_empty_rules = {};
 
 struct virtual_syntax;
 struct virtual_syntax {
-    virtual iter operator()(iter, iter) = 0;
+    virtual std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool completely_match = false);
     virtual ~virtual_syntax() = default;
+private:
+    virtual const std::vector<rule_t>& rules() const;
 };
 
-using rule_t = std::vector<std::string>;
 auto* const _syntax_factory = icy::factory<virtual_syntax>::instance();
 void _S_initialize_syntax_factory();
+template <typename _Tp> void enroll(const std::string&);
+virtual_syntax* get(const std::string&);
 
 #define KEYWORD_DECL(key) \
 struct keyword_##key : public virtual_syntax { \
-    iter operator()(iter _b, iter _e) override { \
-        if (_b == _e) return _b; \
+    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override { \
+        std::ignore = _completely_match; \
+        if (_b == _e) return std::nullopt; \
         if (_b->token() == lexical::token_t::tk_##key) { \
-            return _b + 1; \
+            return std::make_optional<ptrdiff_t>(1); \
         } \
-        return _b; \
+        return std::nullopt; \
     } \
 }
 #define SYNTAX_DECL(syn) \
 struct syntax_##syn : public virtual_syntax { \
-    iter operator()(iter _b, iter _e) override { \
-        if (_b == _e) return _b; \
+    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override { \
+        std::ignore = _completely_match; \
+        if (_b == _e) return std::nullopt; \
         if (_b->token() == lexical::token_t::tk_##syn) { \
-            return _b + 1; \
+            return std::make_optional<ptrdiff_t>(1); \
         } \
-        return _b; \
+        return std::nullopt; \
     } \
 }
 #define RULED_SYNTAX_DECL(syn) \
 struct syn : public virtual_syntax { \
+private: \
     static const std::vector<rule_t> _rules; \
-    iter operator()(iter _b, iter _e) override { \
-        for (const auto& _rule : _rules) { \
-            iter _i = _b; \
-            bool _parse_successfully = true; \
-            for (const auto& _r : _rule) { \
-                auto* const _k = _syntax_factory->get(_r); \
-                iter _p = _k->operator()(_i, _e); \
-                delete _k; \
-                if (_p == _i) { \
-                    _parse_successfully = false; \
-                    break; \
-                } \
-                _i = _p; \
-            } \
-            if (_parse_successfully) return _i; \
-        } \
-        return _b; \
-    } \
+    const std::vector<rule_t>& rules() const override { return _rules; } \
 }
+
+struct syntax_epsilon : public virtual_syntax {
+    std::optional<ptrdiff_t> operator()(iter _b, iter _e, bool _completely_match) override;
+};
 
 KEYWORD_DECL(if);
 KEYWORD_DECL(elif);
@@ -126,12 +123,18 @@ RULED_SYNTAX_DECL(expr);
 
 namespace __details__ {
 
+RULED_SYNTAX_DECL(expr_);
+RULED_SYNTAX_DECL(term);
+RULED_SYNTAX_DECL(term_);
+RULED_SYNTAX_DECL(unary);
 RULED_SYNTAX_DECL(factor);
 
 }
 
 
-
+template <typename _Tp> void enroll(const std::string& _s) {
+    _syntax_factory->enroll<_Tp>(_s);
+}
 
 }
 

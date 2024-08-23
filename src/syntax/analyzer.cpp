@@ -8,7 +8,8 @@ namespace syntax {
 
 auto analyzer::scan(const std::vector<lexical::lexeme>& _seq) -> void {
     auto* const _e = cfg::_syntax_factory->get("EXPR");
-    _e->operator()(_seq.cbegin(), _seq.cend());
+    auto _result = _e->operator()(_seq.cbegin(), _seq.cend(), true);
+    return;
 }
 
 }
