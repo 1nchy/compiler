@@ -37,6 +37,10 @@ struct node {
     void push(const cfg::virtual_syntax* const);
     void pop();
     void clear();
+    void shrink();
+private:
+    bool _M_remove_epsilon();
+    void _M_shorten();
 private:
     const cfg::virtual_syntax* const _syntax;
     node* _parent = nullptr;

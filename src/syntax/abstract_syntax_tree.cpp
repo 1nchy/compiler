@@ -34,6 +34,36 @@ auto node::clear() -> void {
     }
     _children.clear();
 }
+auto node::shrink() -> void {
+    std::ignore = _M_remove_epsilon();
+    _M_shorten();
+}
+auto node::_M_remove_epsilon() -> bool {
+    if (_syntax->begin() == _syntax->end()) { // epsilon
+        clear();
+        return true;
+    }
+    for (auto _i = children().size(); _i != 0; --_i) {
+        auto* const _child = children()[_i - 1];
+        if (_child->_M_remove_epsilon()) {
+            pop();
+        }
+    }
+    return false;
+}
+auto node::_M_shorten() -> void {
+    if (children().empty()) return;
+    for (auto* const _child : children()) {
+        _child->_M_shorten();
+    }
+    if (children().size() == 1) {
+        auto* const _child = children()[0];
+        children() = _child->children();
+        _child->children().clear();
+    }
+}
+
+
 
 void print_node(const node* const _root, size_t _depth) {
     const std::string _prefix = "   |";

@@ -12,6 +12,8 @@ auto analyzer::scan(const std::vector<lexical::lexeme>& _seq) -> void {
     auto _result = _e->operator()(&_root, _seq.cbegin(), _seq.cend(), true);
     auto _s = _root.syntax()->label();
     print_node(&_root);
+    _root.shrink();
+    print_node(&_root);
     _root.clear();
     return;
 }
