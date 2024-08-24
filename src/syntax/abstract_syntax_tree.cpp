@@ -60,6 +60,7 @@ auto node::_M_shorten() -> void {
         auto* const _child = children()[0];
         children() = _child->children();
         _child->children().clear();
+        delete _child;
     }
 }
 
