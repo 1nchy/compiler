@@ -2,13 +2,10 @@ cmake_minimum_required(VERSION 3.26)
 project(compiler)
 
 set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_BUILD_TYPE "Debug")
 
-set(PROJECT_SOURCE_TARGET ${PROJECT_NAME}_source_target)
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-add_executable(${PROJECT_NAME} main.cpp)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 macro(add_third_libraries lib_name)
     message(STATUS "add third library: " ${lib_name})
@@ -29,10 +26,11 @@ add_third_libraries(signal_stack)
 add_third_libraries(finite_state_machine)
 add_third_libraries(abstract_factory)
 
-add_subdirectory(src)
+set(PROJECT_SOURCE_FILE main.cpp)
+file(GLOB_RECURSE PROJECT_SRC_FILE "src/*.cpp")
+list(APPEND PROJECT_SOURCE_FILE ${PROJECT_SRC_FILE})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILE})
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/include
-)
-target_link_libraries(${PROJECT_NAME} 
-    PUBLIC ${PROJECT_SOURCE_TARGET}
 )
