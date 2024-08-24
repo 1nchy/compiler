@@ -35,6 +35,7 @@ void initialize() {
     enroll<syntax_identifier>("IDENTIFIER");
 
     enroll<__details__::expr_>("EXPR_");
+    enroll<__details__::expr__>("EXPR__");
     enroll<__details__::term>("TERM");
     enroll<__details__::term_>("TERM_");
     enroll<__details__::unary>("UNARY");
@@ -48,6 +49,7 @@ void initialize() {
     enroll<syntax_right_parentheses>("RIGHT_PARENTHESES");
     enroll<syntax_left_curly>("LEFT_CURLY");
     enroll<syntax_right_curly>("RIGHT_CURLY");
+    enroll<syntax_comma>("COMMA");
 }
 virtual_syntax* get(const std::string& _s) {
     return _syntax_factory->get(_s);
@@ -123,9 +125,16 @@ namespace __details__ {
 
 const std::vector<rule_t> expr_::_rules = {
 {
-    "PLUS", "TERM", "EXPR_"
+    "PLUS", "TERM", "EXPR__"
 }, {
-    "MINUS", "TERM", "EXPR_"
+    "MINUS", "TERM", "EXPR__"
+}, {
+    "EXPR__"
+}
+};
+const std::vector<rule_t> expr__::_rules = {
+{
+    "COMMA", "EXPR", "EXPR__"
 }, {
     "EPSILON"
 }
