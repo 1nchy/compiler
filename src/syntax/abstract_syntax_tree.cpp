@@ -1,11 +1,11 @@
 #include "syntax/abstract_syntax_tree.hpp"
 #include "syntax/cfg/definition.hpp"
 
+#include <iostream>
+
 namespace icy {
 
 namespace syntax {
-
-
 
 node::node(const cfg::virtual_syntax* const _s) : _syntax(_s) {}
 node::~node() {
@@ -33,6 +33,22 @@ auto node::clear() -> void {
         delete _child;
     }
     _children.clear();
+}
+
+void print_node(const node* const _root, size_t _depth) {
+    const std::string _prefix = "   |";
+    for (size_t _i = 0; _i != _depth; ++_i) {
+        std::cout << _prefix;
+    }
+    std::cout << " - ";
+    std::cout << _root->syntax()->label() << " : ";
+    for (auto _i = _root->syntax()->begin(); _i != _root->syntax()->end(); ++_i) {
+        std::cout << _i->attribute_value() << ' ';
+    }
+    std::cout << std::endl;
+    for (const auto* const _child : _root->children()) {
+        print_node(_child, _depth + 1);
+    }
 }
 
 }

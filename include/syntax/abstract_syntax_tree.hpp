@@ -43,6 +43,8 @@ private:
     std::vector<node*> _children;
 };
 
+void print_node(const node* const _root, size_t _depth = 0);
+
 }
 
 }
