@@ -8,14 +8,14 @@ namespace icy { namespace lexical { namespace dfa {
 struct float_recognition : public fsm::state {
     using state = fsm::state;
     float_recognition& operator=(const float_recognition&);
-    virtual state* handle(const fsm::event&) override;
-    virtual state* handle(const digit&);
-    virtual state* handle(const alpha&);
-    virtual state* handle(const plus&);
-    virtual state* handle(const minus&);
-    virtual state* handle(const dot&);
-    state* transit(state* const) const override;
-    state* clone(const state* const) override;
+    virtual label_type handle(const fsm::event&) override;
+    virtual label_type handle(const digit&);
+    virtual label_type handle(const alpha&);
+    virtual label_type handle(const plus&);
+    virtual label_type handle(const minus&);
+    virtual label_type handle(const dot&);
+    label_type transit(state* const) override;
+    void assign(const state&) override;
     void entry() override {}
     void exit() override {}
     size_t length() const { return _length; }
@@ -26,39 +26,50 @@ struct float_recognition : public fsm::state {
 namespace __float__ {
 
 struct A : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
     void entry() override;
-    state* handle(const digit&) override;
+    label_type handle(const digit&) override;
 };
 struct ABEI : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const alpha&) override;
-    state* handle(const digit&) override;
-    state* handle(const dot&) override;
+    label_type handle(const alpha&) override;
+    label_type handle(const digit&) override;
+    label_type handle(const dot&) override;
 };
 struct C : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const digit&) override;
+    label_type handle(const digit&) override;
 };
 struct CDEI : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const alpha&) override;
-    state* handle(const digit&) override;
+    label_type handle(const alpha&) override;
+    label_type handle(const digit&) override;
 };
 struct FG : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const digit&) override;
-    state* handle(const plus&) override;
-    state* handle(const minus&) override;
+    label_type handle(const digit&) override;
+    label_type handle(const plus&) override;
+    label_type handle(const minus&) override;
 };
 struct G : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const digit&) override;
+    label_type handle(const digit&) override;
 };
 struct GHI : public float_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const digit&) override;
+    label_type handle(const digit&) override;
 };
+
+extern fsm::context<float_recognition> dfa;
+
+void initialize(void);
 
 }
 

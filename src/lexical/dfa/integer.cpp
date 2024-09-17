@@ -9,22 +9,19 @@ auto integer_recognition::operator=(const integer_recognition& _s)
     _end_of_integer = _s._end_of_integer;
     return *this;
 }
-auto integer_recognition::handle(const fsm::event& _e) -> state* {
+auto integer_recognition::handle(const fsm::event& _e) -> label_type {
     _end_of_integer = true;
-    return nullptr;
+    return {};
 }
-auto integer_recognition::handle(const digit& _e) -> state* {
+auto integer_recognition::handle(const digit& _e) -> label_type {
     return handle(fsm::event(_e));
 }
-auto integer_recognition::transit(state* const _s) const -> state* {
-    if (_end_of_integer) return nullptr;
-    return _s;
+auto integer_recognition::transit(state* const _s) -> label_type {
+    if (_end_of_integer) throw fsm::state_error();
+    return {};
 }
-auto integer_recognition::clone(const state* const _s) -> state* {
-    const auto* const _p = dynamic_cast<const integer_recognition* const>(_s);
-    assert(_p != nullptr);
-    if (this != _s && _p != nullptr) *this = *_p;
-    return this;
+auto integer_recognition::assign(const state& _s) -> void {
+    this->operator=(dynamic_cast<const integer_recognition&>(_s));
 }
 
 namespace __integer__ {
@@ -32,13 +29,24 @@ namespace __integer__ {
 auto A::entry() -> void {
     _length = 0;
 }
-auto A::handle(const digit& _e) -> state* {
+auto A::handle(const digit& _e) -> label_type {
     ++_length;
-    return fsm::state::instance<AB>()->clone(this);
+    return AB::label();
 }
-auto AB::handle(const digit& _e) -> state* {
+auto AB::handle(const digit& _e) -> label_type {
     ++_length;
-    return fsm::state::instance<AB>()->clone(this);
+    return AB::label();
+}
+
+fsm::context<integer_recognition> dfa = fsm::context<integer_recognition>();
+
+void initialize(void) {
+    dfa.enroll<A>();
+    dfa.enroll<AB>();
+
+    dfa.accept<AB>();
+
+    dfa.default_entry<A>();
 }
 
 }

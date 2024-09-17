@@ -13,6 +13,8 @@ namespace lexical {
 
 class analyzer;
 
+void initialize();
+
 class analyzer {
 public:
     analyzer() = default;
@@ -30,7 +32,7 @@ private:
     size_t parse_string_lexeme(iter, iter);
     size_t parse_identifier_lexeme(iter, iter);
     lexeme parse_symbol_lexeme(iter, iter);
-    template <typename _Tp> void _M_parse_lexeme(fsm::context<_Tp>* const, iter, iter);
+    template <typename _Tp> void _M_parse_lexeme(fsm::context<_Tp>&, iter, iter);
 private:
     std::vector<lexeme> _lexeme_sequence;
 };

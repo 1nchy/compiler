@@ -8,11 +8,11 @@ namespace icy { namespace lexical { namespace dfa {
 struct identifier_recognition : public fsm::state {
     using state = fsm::state;
     identifier_recognition& operator=(const identifier_recognition&);
-    virtual state* handle(const fsm::event&) override;
-    virtual state* handle(const digit&);
-    virtual state* handle(const alpha&);
-    state* transit(state* const) const override;
-    state* clone(const state* const) override;
+    virtual label_type handle(const fsm::event&) override;
+    virtual label_type handle(const digit&);
+    virtual label_type handle(const alpha&);
+    label_type transit(state* const) override;
+    void assign(const state&) override;
     void entry() override {}
     void exit() override {}
     size_t length() const { return _length; }
@@ -23,15 +23,21 @@ struct identifier_recognition : public fsm::state {
 namespace __identifier__ {
 
 struct A : public identifier_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
     void entry() override;
-    state* handle(const alpha&) override;
+    label_type handle(const alpha&) override;
 };
 struct B : public identifier_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const alpha&) override;
-    state* handle(const digit&) override;
+    label_type handle(const alpha&) override;
+    label_type handle(const digit&) override;
 };
+
+extern fsm::context<identifier_recognition> dfa;
+
+void initialize(void);
 
 }
 

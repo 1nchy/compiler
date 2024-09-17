@@ -8,11 +8,11 @@ namespace icy { namespace lexical { namespace dfa {
 struct string_recognition : public fsm::state {
     using state = fsm::state;
     string_recognition& operator=(const string_recognition&);
-    virtual state* handle(const fsm::event&) override;
-    virtual state* handle(const backslash&);
-    virtual state* handle(const double_quote&);
-    state* transit(state* const) const override;
-    state* clone(const state* const) override;
+    virtual label_type handle(const fsm::event&) override;
+    virtual label_type handle(const backslash&);
+    virtual label_type handle(const double_quote&);
+    label_type transit(state* const) override;
+    void assign(const state&) override;
     void entry() override {}
     void exit() override {}
     size_t length() const { return _length; }
@@ -23,29 +23,38 @@ struct string_recognition : public fsm::state {
 namespace __string__ {
 
 struct A : public string_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
     void entry() override;
-    state* handle(const double_quote&) override;
+    label_type handle(const double_quote&) override;
 };
 struct BE : public string_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const fsm::event&) override;
-    state* handle(const backslash&) override;
-    state* handle(const double_quote&) override;
+    label_type handle(const fsm::event&) override;
+    label_type handle(const backslash&) override;
+    label_type handle(const double_quote&) override;
 };
 struct C : public string_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const fsm::event&) override;
+    label_type handle(const fsm::event&) override;
 };
 struct BDE : public string_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
-    state* handle(const fsm::event&) override;
-    state* handle(const backslash&) override;
-    state* handle(const double_quote&) override;
+    label_type handle(const fsm::event&) override;
+    label_type handle(const backslash&) override;
+    label_type handle(const double_quote&) override;
 };
 struct F : public string_recognition {
+    FSM_STATE_LABEL
     using state = fsm::state;
 };
+
+extern fsm::context<string_recognition> dfa;
+
+void initialize(void);
 
 }
 

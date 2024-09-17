@@ -10,6 +10,13 @@ namespace icy {
 
 namespace lexical {
 
+void initialize() {
+    dfa::__integer__::initialize();
+    dfa::__float__::initialize();
+    dfa::__identifier__::initialize();
+    dfa::__string__::initialize();
+}
+
 auto analyzer::scan(iter _b, iter _e) -> void {
     for (auto _i = _b; _i != _e;) {
         if (*_i == ' ') {
@@ -55,41 +62,35 @@ auto analyzer::parse_lexeme(iter _b, iter _e) -> lexeme {
     }
 }
 auto analyzer::parse_integer_lexeme(iter _b, iter _e) -> size_t {
-    auto* const _dfa = fsm::context<dfa::integer_recognition>::instance();
-    _dfa->accept<dfa::__integer__::AB>();
-    _dfa->start<dfa::__integer__::A>();
+    auto& _dfa = dfa::__integer__::dfa;
+    _dfa.start();
     _M_parse_lexeme(_dfa, _b, _e);
-    size_t _result = _dfa->acceptable() ? _dfa->state()->length() : 0;
-    _dfa->stop();
+    size_t _result = _dfa.acceptable() ? _dfa.state()->length() : 0;
+    _dfa.stop();
     return _result;
 }
 auto analyzer::parse_float_lexeme(iter _b, iter _e) -> size_t {
-    auto* const _dfa = fsm::context<dfa::float_recognition>::instance();
-    _dfa->accept<dfa::__float__::ABEI>();
-    _dfa->accept<dfa::__float__::CDEI>();
-    _dfa->accept<dfa::__float__::GHI>();
-    _dfa->start<dfa::__float__::A>();
+    auto& _dfa = dfa::__float__::dfa;
+    _dfa.start();
     _M_parse_lexeme(_dfa, _b, _e);
-    size_t _result = _dfa->acceptable() ? _dfa->state()->length() : 0;
-    _dfa->stop();
+    size_t _result = _dfa.acceptable() ? _dfa.state()->length() : 0;
+    _dfa.stop();
     return _result;
 }
 auto analyzer::parse_string_lexeme(iter _b, iter _e) -> size_t {
-    auto* const _dfa = fsm::context<dfa::string_recognition>::instance();
-    _dfa->accept<dfa::__string__::F>();
-    _dfa->start<dfa::__string__::A>();
+    auto& _dfa = dfa::__string__::dfa;
+    _dfa.start();
     _M_parse_lexeme(_dfa, _b, _e);
-    size_t _result = _dfa->acceptable() ? _dfa->state()->length() : 0;
-    _dfa->stop();
+    size_t _result = _dfa.acceptable() ? _dfa.state()->length() : 0;
+    _dfa.stop();
     return _result;
 }
 auto analyzer::parse_identifier_lexeme(iter _b, iter _e) -> size_t {
-    auto* const _dfa = fsm::context<dfa::identifier_recognition>::instance();
-    _dfa->accept<dfa::__identifier__::B>();
-    _dfa->start<dfa::__identifier__::A>();
+    auto& _dfa = dfa::__identifier__::dfa;
+    _dfa.start();
     _M_parse_lexeme(_dfa, _b, _e);
-    size_t _result = _dfa->acceptable() ? _dfa->state()->length() : 0;
-    _dfa->stop();
+    size_t _result = _dfa.acceptable() ? _dfa.state()->length() : 0;
+    _dfa.stop();
     return _result;
 }
 auto analyzer::parse_symbol_lexeme(iter _b, iter _e) -> lexeme {
@@ -100,115 +101,115 @@ auto analyzer::parse_symbol_lexeme(iter _b, iter _e) -> lexeme {
     const std::string _symbol(_b, _b + _length_symbol);
     return lexeme(string_2_token(_symbol), _symbol);
 }
-template <typename _Tp> auto analyzer::_M_parse_lexeme(fsm::context<_Tp>* const _dfa, iter _b, iter _e) -> void {
+template <typename _Tp> auto analyzer::_M_parse_lexeme(fsm::context<_Tp>& _dfa, iter _b, iter _e) -> void {
     for (; _b != _e; ++_b) {
         const char _c = *_b;
         bool _result;
         if (dfa::is_alpha(_c)) {
-            _result = _dfa->handle(dfa::alpha(_c));
+            _result = _dfa.handle(dfa::alpha(_c));
         }
         else if (dfa::is_digit(_c)) {
-            _result = _dfa->handle(dfa::digit(_c));
+            _result = _dfa.handle(dfa::digit(_c));
         }
 
         else if (_c == '+') {
-            _result = _dfa->handle(dfa::plus());
+            _result = _dfa.handle(dfa::plus());
         }
         else if (_c == '-') {
-            _result = _dfa->handle(dfa::minus());
+            _result = _dfa.handle(dfa::minus());
         }
         else if (_c == '*') {
-            _result = _dfa->handle(dfa::asterisk());
+            _result = _dfa.handle(dfa::asterisk());
         }
         else if (_c == '/') {
-            _result = _dfa->handle(dfa::slash());
+            _result = _dfa.handle(dfa::slash());
         }
         else if (_c == '=') {
-            _result = _dfa->handle(dfa::assignment());
+            _result = _dfa.handle(dfa::assignment());
         }
         else if (_c == '.') {
-            _result = _dfa->handle(dfa::dot());
+            _result = _dfa.handle(dfa::dot());
         }
         else if (_c == ',') {
-            _result = _dfa->handle(dfa::comma());
+            _result = _dfa.handle(dfa::comma());
         }
         else if (_c == '|') {
-            _result = _dfa->handle(dfa::vertical());
+            _result = _dfa.handle(dfa::vertical());
         }
 
         else if (_c == '<') {
-            _result = _dfa->handle(dfa::left_angle());
+            _result = _dfa.handle(dfa::left_angle());
         }
         else if (_c == '>') {
-            _result = _dfa->handle(dfa::right_angle());
+            _result = _dfa.handle(dfa::right_angle());
         }
         else if (_c == '(') {
-            _result = _dfa->handle(dfa::left_parentheses());
+            _result = _dfa.handle(dfa::left_parentheses());
         }
         else if (_c == ')') {
-            _result = _dfa->handle(dfa::right_parentheses());
+            _result = _dfa.handle(dfa::right_parentheses());
         }
         else if (_c == '[') {
-            _result = _dfa->handle(dfa::left_square());
+            _result = _dfa.handle(dfa::left_square());
         }
         else if (_c == ']') {
-            _result = _dfa->handle(dfa::right_square());
+            _result = _dfa.handle(dfa::right_square());
         }
         else if (_c == '{') {
-            _result = _dfa->handle(dfa::left_curly());
+            _result = _dfa.handle(dfa::left_curly());
         }
         else if (_c == '}') {
-            _result = _dfa->handle(dfa::right_curly());
+            _result = _dfa.handle(dfa::right_curly());
         }
 
         else if (_c == '\'') {
-            _result = _dfa->handle(dfa::single_quote());
+            _result = _dfa.handle(dfa::single_quote());
         }
         else if (_c == '\"') {
-            _result = _dfa->handle(dfa::double_quote());
+            _result = _dfa.handle(dfa::double_quote());
         }
         else if (_c == '`') {
-            _result = _dfa->handle(dfa::back_quote());
+            _result = _dfa.handle(dfa::back_quote());
         }
         else if (_c == '~') {
-            _result = _dfa->handle(dfa::tilde());
+            _result = _dfa.handle(dfa::tilde());
         }
         else if (_c == '\\') {
-            _result = _dfa->handle(dfa::backslash());
+            _result = _dfa.handle(dfa::backslash());
         }
         else if (_c == '?') {
-            _result = _dfa->handle(dfa::question());
+            _result = _dfa.handle(dfa::question());
         }
         else if (_c == ':') {
-            _result = _dfa->handle(dfa::colon());
+            _result = _dfa.handle(dfa::colon());
         }
         else if (_c == ';') {
-            _result = _dfa->handle(dfa::semicolon());
+            _result = _dfa.handle(dfa::semicolon());
         }
 
         else if (_c == '!') {
-            _result = _dfa->handle(dfa::exclamation());
+            _result = _dfa.handle(dfa::exclamation());
         }
         else if (_c == '@') {
-            _result = _dfa->handle(dfa::at());
+            _result = _dfa.handle(dfa::at());
         }
         else if (_c == '#') {
-            _result = _dfa->handle(dfa::hashtag());
+            _result = _dfa.handle(dfa::hashtag());
         }
         else if (_c == '$') {
-            _result = _dfa->handle(dfa::dollar());
+            _result = _dfa.handle(dfa::dollar());
         }
         else if (_c == '%') {
-            _result = _dfa->handle(dfa::percent());
+            _result = _dfa.handle(dfa::percent());
         }
         else if (_c == '^') {
-            _result = _dfa->handle(dfa::caret());
+            _result = _dfa.handle(dfa::caret());
         }
         else if (_c == '&') {
-            _result = _dfa->handle(dfa::ampersand());
+            _result = _dfa.handle(dfa::ampersand());
         }
         else {
-            _result = _dfa->handle(fsm::event());
+            _result = _dfa.handle(fsm::event());
         }
 
         if (!_result) {
