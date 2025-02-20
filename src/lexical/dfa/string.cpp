@@ -2,6 +2,8 @@
 
 namespace icy { namespace lexical { namespace dfa {
 
+using namespace fsm::character;
+
 auto string_recognition::operator=(const string_recognition& _s)
 -> string_recognition& {
     if (&_s == this) return *this;
@@ -19,9 +21,13 @@ auto string_recognition::handle(const backslash& _e) -> label_type {
 auto string_recognition::handle(const double_quote& _e) -> label_type {
     return handle(fsm::event(_e));
 }
-auto string_recognition::transit(state* const _s) -> label_type {
-    if (_end_of_string) throw fsm::state_error();
+auto string_recognition::transit() -> label_type {
+    if (_end_of_string) return state::label();
     return {};
+}
+auto string_recognition::reset() -> void {
+    _length = 0;
+    _end_of_string = false;
 }
 auto string_recognition::assign(const state& _s) -> void {
     this->operator=(dynamic_cast<const string_recognition&>(_s));
@@ -68,14 +74,8 @@ auto BDE::handle(const double_quote& _e) -> label_type {
 fsm::context<string_recognition> dfa = fsm::context<string_recognition>();
 
 void initialize(void) {
-    dfa.enroll<A>();
-    dfa.enroll<BE>();
-    dfa.enroll<C>();
-    dfa.enroll<BDE>();
-    dfa.enroll<F>();
-
+    dfa.enroll<A, BE, C, BDE, F>();
     dfa.accept<F>();
-
     dfa.default_entry<A>();
 }
 

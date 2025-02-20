@@ -2,6 +2,8 @@
 
 namespace icy { namespace lexical{ namespace dfa {
 
+using namespace fsm::character;    
+
 auto integer_recognition::operator=(const integer_recognition& _s)
 -> integer_recognition& {
     if (&_s == this) return *this;
@@ -16,9 +18,13 @@ auto integer_recognition::handle(const fsm::event& _e) -> label_type {
 auto integer_recognition::handle(const digit& _e) -> label_type {
     return handle(fsm::event(_e));
 }
-auto integer_recognition::transit(state* const _s) -> label_type {
-    if (_end_of_integer) throw fsm::state_error();
+auto integer_recognition::transit() -> label_type {
+    if (_end_of_integer) return state::label();
     return {};
+}
+auto integer_recognition::reset() -> void {
+    _length = 0;
+    _end_of_integer = false;
 }
 auto integer_recognition::assign(const state& _s) -> void {
     this->operator=(dynamic_cast<const integer_recognition&>(_s));
@@ -41,11 +47,8 @@ auto AB::handle(const digit& _e) -> label_type {
 fsm::context<integer_recognition> dfa = fsm::context<integer_recognition>();
 
 void initialize(void) {
-    dfa.enroll<A>();
-    dfa.enroll<AB>();
-
+    dfa.enroll<A, AB>();
     dfa.accept<AB>();
-
     dfa.default_entry<A>();
 }
 

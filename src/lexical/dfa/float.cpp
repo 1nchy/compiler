@@ -2,6 +2,8 @@
 
 namespace icy { namespace lexical{ namespace dfa {
 
+using namespace fsm::character;
+
 auto float_recognition::operator=(const float_recognition& _s)
 -> float_recognition& {
     if (&_s == this) return *this;
@@ -28,9 +30,13 @@ auto float_recognition::handle(const minus& _e) -> label_type {
 auto float_recognition::handle(const dot& _e) -> label_type {
     return handle(fsm::event(_e));
 }
-auto float_recognition::transit(state* const _s) -> label_type {
-    if (_end_of_float) throw fsm::state_error();
+auto float_recognition::transit() -> label_type {
+    if (_end_of_float) return state::label();
     return {};
+}
+auto float_recognition::reset() -> void {
+    _length = 0;
+    _end_of_float = 0;
 }
 auto float_recognition::assign(const state& _s) -> void {
     this->operator=(dynamic_cast<const float_recognition&>(_s));
@@ -46,7 +52,7 @@ auto A::handle(const digit& _e) -> label_type {
     return ABEI::label();
 }
 auto ABEI::handle(const alpha& _e) -> label_type {
-    if (_e._c != 'e') {
+    if (_e.value() != 'e') {
         _end_of_float = true;
         throw fsm::state_error();
     }
@@ -66,7 +72,7 @@ auto C::handle(const digit& _e) -> label_type {
     return CDEI::label();
 }
 auto CDEI::handle(const alpha& _e) -> label_type {
-    if (_e._c != 'e') {
+    if (_e.value() != 'e') {
         _end_of_float = true;
         throw fsm::state_error();
     }
@@ -101,18 +107,8 @@ auto GHI::handle(const digit& _e) -> label_type {
 fsm::context<float_recognition> dfa = fsm::context<float_recognition>();
 
 void initialize(void) {
-    dfa.enroll<A>();
-    dfa.enroll<ABEI>();
-    dfa.enroll<C>();
-    dfa.enroll<CDEI>();
-    dfa.enroll<FG>();
-    dfa.enroll<G>();
-    dfa.enroll<GHI>();
-
-    dfa.accept<ABEI>();
-    dfa.accept<CDEI>();
-    dfa.accept<GHI>();
-
+    dfa.enroll<A, ABEI, C, CDEI, FG, G, GHI>();
+    dfa.accept<ABEI, CDEI, GHI>();
     dfa.default_entry<A>();
 }
 
